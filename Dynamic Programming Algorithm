@@ -1,0 +1,102 @@
+import java.util.*;
+
+public class DynamicProgrammingRROP
+{
+
+    // 1. Initialization Section
+    
+    static final int N = 4;               // total number of nodes (A, B, C, D)
+    static final int START = 0;           // starting node = Port A
+
+    // Distance matrix between nodes
+    static final int[][] distance = {
+        {0, 15, 25, 35},
+        {15, 0, 30, 28},
+        {25, 30, 0, 20},
+        {35, 28, 20, 0}
+    };
+
+    static int[][] memo = new int[N][1 << N];      // memoization table
+    static int[][] nextNode = new int[N][1 << N];  // store next node in optimal path
+
+    
+    // 2. Main Function
+    
+    public static void main(String[] args) {
+
+        System.out.println(" RELIEF ROUTE OPTIMIZATION – DYNAMIC PROGRAMMING ");
+
+        // Initialize memo and nextNode arrays with -1
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < (1 << N); j++) {
+                memo[i][j] = -1;
+                nextNode[i][j] = -1;
+            }
+        }
+
+        System.out.println("Starting Node: Port A (Index 0)\n");
+
+        int minCost = tspDP(START, 1 << START);
+
+        System.out.println("Optimal Route and Minimum Distance Result");
+        printOptimalRoute();
+        System.out.println("Total Minimum Distance: " + minCost + " nautical miles");
+    }
+
+    
+    // 3. Dynamic Programming Function
+    
+    static int tspDP(int current, int mask) {
+
+        // Base Case: all nodes visited
+        if (mask == (1 << N) - 1) {
+            return distance[current][START];
+        }
+
+        // Return stored result if exists
+        if (memo[current][mask] != -1) {
+            return memo[current][mask];
+        }
+
+        int minCost = Integer.MAX_VALUE;
+        int bestNext = -1;
+
+        // Try next unvisited nodes
+        for (int next = 0; next < N; next++) {
+            if ((mask & (1 << next)) == 0) { // if not visited
+                int newMask = mask | (1 << next);
+                int cost = distance[current][next] + tspDP(next, newMask);
+                if (cost < minCost) {
+                    minCost = cost;
+                    bestNext = next;
+                }
+            }
+        }
+
+        memo[current][mask] = minCost;
+        nextNode[current][mask] = bestNext;  // store best next move
+        return minCost;
+    }
+
+    
+    // 4. Route Reconstruction Function
+    
+    static void printOptimalRoute() {
+        int mask = 1 << START;
+        int current = START;
+
+        System.out.print("Optimal Route: ");
+        System.out.print("A");
+
+        while (true) {
+            int next = nextNode[current][mask];
+            if (next == -1) break; // no more nodes to visit
+
+            System.out.print(" → " + (char) ('A' + next));
+            mask |= (1 << next);
+            current = next;
+        }
+
+        System.out.println(" → A (Return to Starting Port)\n");
+    }
+}
