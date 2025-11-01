@@ -1,0 +1,79 @@
+import java.util.*;
+
+public class Backtracking {
+    
+    static int[][] distanceMatrix = {
+        {0, 15, 25, 35},
+        {15, 0, 30, 28},
+        {25, 30, 0, 20},
+        {35, 28, 20, 0}
+    };
+
+    static String[] locations = {"Port A", "Port B", "Relief Center C", "Relief Center D"};
+
+    public static String backtrackingTSP(int[][] dist) {
+        int n = dist.length;
+        boolean[] visited = new boolean[n];
+        visited[0] = true; // start from Port A
+
+        StringBuilder path = new StringBuilder(locations[0] + " -> ");
+        int[] minDistance = {Integer.MAX_VALUE};
+        String[] bestPath = {""};
+
+        System.out.println(" Backtracking Algorithm Route: ");
+        System.out.println("-------------------------------------------------------------------------------------------------------");
+
+        tspBacktracking(0, dist, visited, n, 1, 0, path, minDistance, bestPath);
+
+        System.out.println("\n Final Result: ");
+        System.out.println("------------------------------------------------------------------------------------------------------------------");
+        System.out.println("Shortest Route: " + bestPath[0]);
+        System.out.println("Total Minimum Distance: " + minDistance[0] + " nm");
+
+        return "Backtracking TSP Route: " + bestPath[0] + " ( Total Distance: " + minDistance[0] + " nm )";
+    }
+
+    private static void tspBacktracking(int pos, int[][] dist, boolean[] visited,
+                                        int n, int count, int cost,
+                                        StringBuilder path, int[] minDistance,
+                                        String[] bestPath) {
+
+        // Base case: all locations visited
+        if (count == n && dist[pos][0] > 0) {
+            int totalCost = cost + dist[pos][0];
+            String currentPath = path.toString() + locations[0];
+
+            System.out.println("Path Found: " + currentPath + " ( Total Distance: " + totalCost + " nm )");
+
+            if (totalCost < minDistance[0]) {
+                minDistance[0] = totalCost;
+                bestPath[0] = currentPath;
+                System.out.println(">> New shortest route found!");
+            }
+            return;
+        }
+
+        // Try next possible unvisited location
+        for (int i = 0; i < n; i++) {
+            if (!visited[i] && dist[pos][i] > 0) {
+                visited[i] = true;
+                int newCost = cost + dist[pos][i];
+
+                if (newCost < minDistance[0]) {
+                    int len = path.length();
+                    path.append(locations[i]).append(" -> ");
+                    tspBacktracking(i, dist, visited, n, count + 1, newCost, path, minDistance, bestPath);
+                    path.setLength(len); // backtrack
+                } else {
+                    System.out.println("Pruned path: " + path.toString() + locations[i] +
+                                       " (cost " + newCost + " exceeds current min " + minDistance[0] + ")");
+                }
+                visited[i] = false;
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        System.out.println(backtrackingTSP(distanceMatrix));
+    }
+}
