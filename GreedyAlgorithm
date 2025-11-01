@@ -1,0 +1,65 @@
+import java.util.*;
+public class GreedyAlgorithmRROP
+{
+    // List of locations
+    static String[] locations = {"Port A", "Port B", "Relief Center C", "Relief Center D"};
+    
+    // Distance Matrix (in nautical miles)
+    static int[][] distance = {
+        {0, 15, 25, 35},   // From Port A
+        {15, 0, 30, 28},   // From Port B
+        {25, 30, 0, 20},   // From Relief Center C
+        {35, 28, 20, 0}    // From Relief Center D
+    };
+    
+    public static void main(String[] args) {
+        boolean[] visited = new boolean[locations.length];
+        int currentLocation = 0; // Start at Port A (index 0)
+        visited[currentLocation] = true;
+        
+        int totalDistance = 0;
+        String route = locations[currentLocation];
+        
+        System.out.println("Greedy Algorithm for Relief Route Optimization Problem (RROP)");
+        System.out.println("-------------------------------------------------------------");
+        
+        // Visit all locations using Greedy approach
+        for (int i = 0; i < locations.length - 1; i++) {
+            int nextLocation = findNearest(currentLocation, visited);
+            totalDistance += distance[currentLocation][nextLocation];
+            visited[nextLocation] = true;
+            
+            System.out.println("Move from " + locations[currentLocation] + 
+                               " = " + locations[nextLocation] + 
+                               " (" + distance[currentLocation][nextLocation] + " nm)");
+            
+            route += " = " + locations[nextLocation];
+            currentLocation = nextLocation;
+        }
+        
+        // Return to start point (Port A)
+        totalDistance += distance[currentLocation][0];
+        route += " = " + locations[0];
+        
+        System.out.println("Return from " + locations[currentLocation] + 
+                           " = " + locations[0] + 
+                           " (" + distance[currentLocation][0] + " nm)");
+        
+        System.out.println("\nFinal Route: " + route);
+        System.out.println("Total Distance: " + totalDistance + " nautical miles");
+    }
+    
+    // Function to find the nearest unvisited location
+    public static int findNearest(int current, boolean[] visited) {
+        int nearestIndex = -1;
+        int minDistance = Integer.MAX_VALUE;
+        
+        for (int i = 0; i < distance.length; i++) {
+            if (!visited[i] && distance[current][i] != 0 && distance[current][i] < minDistance) {
+                minDistance = distance[current][i];
+                nearestIndex = i;
+            }
+        }
+        return nearestIndex;
+    }
+}
