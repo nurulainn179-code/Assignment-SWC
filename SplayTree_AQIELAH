@@ -1,0 +1,126 @@
+public class SplayTreeRROP {
+    
+    // Node class for the tree
+    class Node {
+        int value;
+        Node left, right;
+        Node(int value) {
+            this.value = value;
+            left = right = null;
+        }
+    }
+    
+    private Node root;
+
+    // Right rotation
+    private Node rightRotate(Node x) {
+        Node y = x.left;
+        x.left = y.right;
+        y.right = x;
+        return y;
+    }
+
+    // Left rotation
+    private Node leftRotate(Node x) {
+        Node y = x.right;
+        x.right = y.left;
+        y.left = x;
+        return y;
+    }
+
+    // Splay operation: brings the given key to root if it exists
+    private Node splay(Node root, int key) {
+        if (root == null || root.value == key)
+            return root;
+
+        // Key lies in left subtree
+        if (key < root.value) {
+            if (root.left == null) return root;
+
+            // Zig-Zig (Left Left)
+            if (key < root.left.value) {
+                root.left.left = splay(root.left.left, key);
+                root = rightRotate(root);
+            }
+            // Zig-Zag (Left Right)
+            else if (key > root.left.value) {
+                root.left.right = splay(root.left.right, key);
+                if (root.left.right != null)
+                    root.left = leftRotate(root.left);
+            }
+
+            return (root.left == null) ? root : rightRotate(root);
+        }
+        else { // Key lies in right subtree
+            if (root.right == null) return root;
+
+            // Zag-Zig (Right Left)
+            if (key < root.right.value) {
+                root.right.left = splay(root.right.left, key);
+                if (root.right.left != null)
+                    root.right = rightRotate(root.right);
+            }
+            // Zag-Zag (Right Right)
+            else if (key > root.right.value) {
+                root.right.right = splay(root.right.right, key);
+                root = leftRotate(root);
+            }
+
+            return (root.right == null) ? root : leftRotate(root);
+        }
+    }
+
+    // Insert node and splay it to root
+    public void insert(int value) {
+        if (root == null) {
+            root = new Node(value);
+            return;
+        }
+        root = splay(root, value);
+
+        if (root.value == value)
+            return; // No duplicates
+
+        Node newNode = new Node(value);
+
+        if (value < root.value) {
+            newNode.right = root;
+            newNode.left = root.left;
+            root.left = null;
+        } else {
+            newNode.left = root;
+            newNode.right = root.right;
+            root.right = null;
+        }
+        root = newNode;
+    }
+
+    // Inorder traversal (sorted order)
+    public void inorder(Node root) {
+        if (root != null) {
+            inorder(root.left);
+            System.out.print(root.value + " ");
+            inorder(root.right);
+        }
+    }
+
+    // Display
+    public void displayTree() {
+        System.out.print("Current Splay Tree (Inorder): ");
+        inorder(root);
+        System.out.println();
+    }
+
+    // Main method for BlueJ testing
+    public static void main(String[] args) {
+        SplayTreeRROP tree = new SplayTreeRROP();
+
+        int[] values = {30, 20, 40, 10, 25, 35, 50};
+        System.out.println("Inserting values into Splay Tree:");
+        for (int val : values) {
+            System.out.println("Inserting: " + val);
+            tree.insert(val);
+            tree.displayTree();
+        }
+    }
+}
