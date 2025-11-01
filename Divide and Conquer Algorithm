@@ -1,0 +1,73 @@
+import java.util.*;
+public class DivideAndConquer
+{
+      // Distance Matrix (Adjacency Matrix)
+    static int[][] distanceMatrix = {
+        {0, 15, 25, 35},   // Distances from Port A
+        {15, 0, 30, 28},   // Distances from Port B
+        {25, 30, 0, 20},   // Distances from Relief Center C
+        {35, 28, 20, 0}    // Distances from Relief Center D
+    };
+
+    // Location names
+    static String[] locations = {"Port A", "Port B", "Relief Center C", "Relief Center D"};
+
+    // Global variables to store best route and minimum cost
+    static int minCost = Integer.MAX_VALUE;
+    static String bestRoute = "";
+
+    public static void main(String[] args) {
+        boolean[] visited = new boolean[distanceMatrix.length];
+        visited[0] = true; // Start from Port A
+        String path = locations[0]; // Start path
+
+        // Call Divide and Conquer function
+        divideAndConquer(0, visited, 0, path);
+
+        // Display final result
+        System.out.println("\n===== Final Result =====");
+        System.out.println("Shortest Route: " + bestRoute);
+        System.out.println("Total Distance: " + minCost + " nm");
+    }
+
+    // Recursive function for Divide and Conquer
+    public static void divideAndConquer(int currentCity, boolean[] visited, int currentCost, String path) {
+        // Base case: if all ports have been visited
+        if (allVisited(visited)) {
+            int totalCost = currentCost + distanceMatrix[currentCity][0]; // Return to starting port (A)
+            String fullPath = path + " -> " + locations[0];
+
+            // Show each completed route
+            System.out.println(fullPath + " | Total Distance: " + totalCost + " nm");
+
+            // Compare with current minimum
+            if (totalCost < minCost) {
+                minCost = totalCost;
+                bestRoute = fullPath;
+            }
+            return;
+        }
+
+        // Try visiting all unvisited ports (Divide step)
+        for (int i = 0; i < distanceMatrix.length; i++) {
+            if (!visited[i]) {
+                visited[i] = true;
+
+                // Conquer step: recursive call
+                divideAndConquer(i, visited, currentCost + distanceMatrix[currentCity][i],
+                        path + " -> " + locations[i]);
+
+                // Backtrack to explore another route
+                visited[i] = false;
+            }
+        }
+    }
+
+    // Check if all ports have been visited
+    public static boolean allVisited(boolean[] visited) {
+        for (boolean v : visited) {
+            if (!v) return false;
+        }
+        return true;
+    }
+}
